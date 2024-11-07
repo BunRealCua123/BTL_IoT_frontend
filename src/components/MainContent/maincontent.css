@@ -1,0 +1,10 @@
+.main-content {
+    flex: 1;
+    padding: 20px;
+    max-width: calc(100vw - 80px);
+}
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr 700px;
+    gap: 20px;
+}

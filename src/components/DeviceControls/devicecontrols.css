@@ -1,0 +1,67 @@
+.device-control {
+    background: linear-gradient(135deg, #6e8efb, #4a6cf7);
+    border-radius: 20px;
+    padding: 30px;
+    width: 100%;
+    max-width: 100%;
+    box-shadow: 0 10px 30px rgba(74, 108, 247, 0.2);
+    margin-bottom: 20px;
+}
+
+.device-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+.title-section h1 {
+    color: white;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+.title-section p {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+}
+
+.status-badge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px 15px;
+    border-radius: 30px;
+    color: white;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background: #4ade80;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #4ade80;
+    animation: pulse 2s infinite;
+}
+
+.device-stats {
+    display: flex;
+    gap: 15px;
+}
+
+.device-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.device-card {
+    background: var(--background-color);
+    padding: 20px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
