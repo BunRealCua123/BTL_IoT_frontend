@@ -1,7 +1,13 @@
 import { Switch } from '@mui/material';
 import './devicecontrols.css';
+import FireAlarmDevice from '../FireAlarmDevice/FireAlarmDevice';
+import { startTransition } from 'react';
 
 function DeviceControls() {
+    const listPumpControl = [
+        { name: 'Pump Control 1', status: 'ON' },
+        { name: 'Pump Control 2', status: 'ON' },
+    ];
     return (
         <div className="device-controls">
             {/* Điều khiển bóng đèn */}
@@ -26,8 +32,7 @@ function DeviceControls() {
             <div
                 className="device-control"
                 style={{
-                    background:
-                        'linear-gradient(135deg, #FF6B6B 0%, #FF2D55 100%)',
+                    background: 'linear-gradient(135deg, #FF6B6B 0%, #FF2D55 100%)',
                 }}
             >
                 <div class="device-header">
@@ -50,8 +55,7 @@ function DeviceControls() {
             <div
                 className="device-control"
                 style={{
-                    background:
-                        'linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%)',
+                    background: 'linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%)',
                 }}
             >
                 <div class="device-header">
@@ -64,9 +68,17 @@ function DeviceControls() {
                         Connected
                     </div>
                 </div>
-                <div className="fire-container">
+                <div
+                    className="fire-container"
+                    style={{
+                        display: 'flex',
+                        gap: '20px',
+                    }}
+                >
                     {/* Thêm điều khiển thiết bị an toàn vào đây .......................*/}
-                    thêm điều khiển thiết bị an toàn vào đây
+                    {listPumpControl.map((device) => (
+                        <FireAlarmDevice device={device} />
+                    ))}
                 </div>
             </div>
         </div>
