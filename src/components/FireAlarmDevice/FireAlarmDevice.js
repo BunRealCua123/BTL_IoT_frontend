@@ -17,7 +17,7 @@ const FireAlarmDevice = ({ device }) => {
                 background: '#d2e9dc',
                 borderRadius: '20px',
                 width: '300px',
-                height: '250px',
+                height: '200px',
                 boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
             }}
         >
@@ -32,9 +32,15 @@ const FireAlarmDevice = ({ device }) => {
                         borderBottom: '1px solid #eee',
                         marginBottom: '20px',
                     }}
+                    style={{ display: 'flex', gap: '10px' }}
                 >
-                    {name}
+                    <div>{name}</div>
+                    <div class="status-badge" style={{ color: 'black' }}>
+                        <div class="status-dot"></div>
+                        Connected
+                    </div>
                 </Typography>
+
                 <Paper
                     elevation={0}
                     sx={{
