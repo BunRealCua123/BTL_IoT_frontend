@@ -2,7 +2,7 @@ import { Switch } from '@mui/material';
 import './devicecontrols.css';
 import FireAlarmDevice from '../FireAlarmDevice/FireAlarmDevice';
 import { startTransition } from 'react';
-
+import DoorControl from '../DoorControl/DoorControl';
 function DeviceControls() {
     const listPumpControl = [
         { name: 'Pump Control 1', status: 'ON' },
@@ -46,8 +46,7 @@ function DeviceControls() {
                     </div>
                 </div>
                 <div className="door-container">
-                    {/* Thêm điều khiển cửa vào đây .......................*/}
-                    thêm điều khiển cửa vào đây
+                    <DoorControl doorName="main_door" />
                 </div>
             </div>
 
