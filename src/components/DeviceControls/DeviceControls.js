@@ -4,44 +4,54 @@ import FireAlarmDevice from '../FireAlarmDevice/FireAlarmDevice';
 import { startTransition, useEffect, useState } from 'react';
 import DoorControl from '../DoorControl/DoorControl';
 import Light from '../Light/Light';
+
 function DeviceControls() {
     const listPumpControl = [
         { name: 'Pump Control 1', status: 'ON' },
         { name: 'Pump Control 2', status: 'ON' },
     ];
     const [listPump, setListPump] = useState([]);
+    const [listDoors, setListDoors] = useState([]);
+
     useEffect(() => {
-        const fetchPump = async () => {
+        const fetchDevices = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/device?type=pump');
-                if (response.ok) {
-                    const data = await response.json();
-                    setListPump(data.listDevice);
-                    console.log(data);
+                // Fetch pump devices
+                const pumpResponse = await fetch('http://localhost:5000/api/device?type=pump');
+                if (pumpResponse.ok) {
+                    const pumpData = await pumpResponse.json();
+                    setListPump(pumpData.listDevice);
+                }
+
+                // Fetch door devices
+                const doorResponse = await fetch('http://localhost:5000/api/device?type=door');
+                if (doorResponse.ok) {
+                    const doorData = await doorResponse.json();
+                    setListDoors(doorData.listDevice);
                 }
             } catch (error) {
                 console.error('Error:', error);
             }
         };
-        fetchPump();
+
+        fetchDevices();
     }, []);
-    // console.log(listPump);
+
     return (
         <div className="device-controls">
             {/* Điều khiển bóng đèn */}
             <div className="device-control">
-                <div class="device-header">
-                    <div class="title-section">
+                <div className="device-header">
+                    <div className="title-section">
                         <h1>Smart Lighting</h1>
                         <p>Control your home lighting system</p>
                     </div>
-                    <div class="status-badge">
-                        <div class="status-dot"></div>
+                    <div className="status-badge">
+                        <div className="status-dot"></div>
                         Connected
                     </div>
                 </div>
                 <div className="light-container">
-                    {/* Thêm điều khiển đèn vào đây .......................*/}
                     <Light />
                 </div>
             </div>
@@ -53,18 +63,27 @@ function DeviceControls() {
                     background: 'linear-gradient(135deg, #FF6B6B 0%, #FF2D55 100%)',
                 }}
             >
-                <div class="device-header">
-                    <div class="title-section">
+                <div className="device-header">
+                    <div className="title-section">
                         <h1>Smart Door</h1>
-                        <p>Control your home lighting system</p>
+                        <p>Control your door security system</p>
                     </div>
-                    <div class="status-badge">
-                        <div class="status-dot"></div>
+                    <div className="status-badge">
+                        <div className="status-dot"></div>
                         Connected
                     </div>
                 </div>
-                <div className="door-container">
-                    <DoorControl doorName="main_door" />
+                <div
+                    className="door-container"
+                    style={{
+                        display: 'flex',
+                        gap: '20px',
+                        flexWrap: 'wrap',
+                    }}
+                >
+                    {listDoors.map((door) => (
+                        <DoorControl key={door._id} device={door} />
+                    ))}
                 </div>
             </div>
 
@@ -75,13 +94,13 @@ function DeviceControls() {
                     background: 'linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%)',
                 }}
             >
-                <div class="device-header">
-                    <div class="title-section">
+                <div className="device-header">
+                    <div className="title-section">
                         <h1>Fire Safety Devices</h1>
                         <p>Control your home lighting system</p>
                     </div>
-                    <div class="status-badge">
-                        <div class="status-dot"></div>
+                    <div className="status-badge">
+                        <div className="status-dot"></div>
                         Connected
                     </div>
                 </div>
@@ -92,7 +111,6 @@ function DeviceControls() {
                         gap: '20px',
                     }}
                 >
-                    {/* Thêm điều khiển thiết bị an toàn vào đây .......................*/}
                     {listPump.map((device) => (
                         <FireAlarmDevice key={device._id} device={device} />
                     ))}

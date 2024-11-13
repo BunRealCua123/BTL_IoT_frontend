@@ -3,7 +3,6 @@ import './App.css';
 import Sidebar from './components/Sidebar/Sidebar';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import MainContent from './components/MainContent/MainContent';
-import DeviceControls from './components/DeviceControls/DeviceControls';
 import DeviceManagement from './components/DeviceManagement/DeviceManagement';
 
 function App() {
