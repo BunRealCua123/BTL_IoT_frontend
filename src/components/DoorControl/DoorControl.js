@@ -1,11 +1,37 @@
-// DoorControl.js
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Switch, Box, Typography } from '@mui/material';
-import CameraAltIcon from '@mui/icons-material/CameraAlt';
 
-const DoorControl = ({ doorName = 'Door 1' }) => {
-    const [doorStatus, setDoorStatus] = useState(false);
+const DoorControl = ({ device }) => {
+    console.log(device);
+    const [doorStatus, setDoorStatus] = useState(device?.status === 'OPEN');
     const [isLoading, setIsLoading] = useState(false);
+
+    const checkDoorStatus = useCallback(async () => {
+        if (!device?._id) return;
+
+        try {
+            const response = await fetch('http://localhost:5000/api/door', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    door_id: device._id,
+                }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setDoorStatus(data.status === 'OPEN');
+            }
+        } catch (error) {
+            console.error('Error checking door status:', error);
+        }
+    }, [device?._id]); // Only recreate if device ID changes
+
+    useEffect(() => {
+        checkDoorStatus();
+    }, [checkDoorStatus]); // Now properly depends on checkDoorStatus
 
     const handleDoorControl = async () => {
         setIsLoading(true);
@@ -17,39 +43,24 @@ const DoorControl = ({ doorName = 'Door 1' }) => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
+                    door_id: device.deviceId,
                     action: action,
-                    door_name: doorName,
                 }),
             });
 
             if (response.ok) {
                 setDoorStatus(!doorStatus);
+            } else {
+                // Handle error responses
+                const errorData = await response.json();
+                console.error('Door control error:', errorData);
+                // Recheck actual door status in case of failure
+                checkDoorStatus();
             }
         } catch (error) {
-            console.error('Error:', error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleCameraControl = async () => {
-        setIsLoading(true);
-        try {
-            const response = await fetch('http://localhost:5000/api/camera_door', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    door_name: doorName,
-                }),
-            });
-
-            if (response.ok) {
-                setDoorStatus(true);
-            }
-        } catch (error) {
-            console.error('Error:', error);
+            console.error('Error controlling door:', error);
+            // Recheck actual door status in case of failure
+            checkDoorStatus();
         } finally {
             setIsLoading(false);
         }
@@ -82,7 +93,7 @@ const DoorControl = ({ doorName = 'Door 1' }) => {
                         fontWeight: 500,
                     }}
                 >
-                    {doorName}
+                    {device?.deviceId}
                 </Typography>
                 <Box
                     sx={{
@@ -96,7 +107,7 @@ const DoorControl = ({ doorName = 'Door 1' }) => {
                             width: 8,
                             height: 8,
                             borderRadius: '50%',
-                            bgcolor: '#4CAF50',
+                            bgcolor: device?.alive ? '#4CAF50' : '#ff0000',
                         }}
                     />
                     <Typography
@@ -106,7 +117,7 @@ const DoorControl = ({ doorName = 'Door 1' }) => {
                             opacity: 0.8,
                         }}
                     >
-                        Connected
+                        {device?.alive ? 'Connected' : 'Disconnected'}
                     </Typography>
                 </Box>
             </Box>
@@ -116,7 +127,6 @@ const DoorControl = ({ doorName = 'Door 1' }) => {
                     bgcolor: 'rgba(255, 255, 255, 0.9)',
                     borderRadius: '12px',
                     p: 1.5,
-                    mb: 1,
                 }}
             >
                 <Box
@@ -161,7 +171,7 @@ const DoorControl = ({ doorName = 'Door 1' }) => {
                                     fontSize: '0.875rem',
                                 }}
                             >
-                                {doorStatus ? 'ON' : 'OFF'}
+                                {doorStatus ? 'OPEN' : 'CLOSE'}
                             </Typography>
                             <Typography sx={{ color: '#666' }}>Door Lock</Typography>
                         </Box>
@@ -169,7 +179,7 @@ const DoorControl = ({ doorName = 'Door 1' }) => {
                     <Switch
                         checked={doorStatus}
                         onChange={handleDoorControl}
-                        disabled={isLoading}
+                        disabled={isLoading || !device?.alive}
                         sx={{
                             '& .MuiSwitch-switchBase.Mui-checked': {
                                 color: '#FF6B6B',
@@ -182,60 +192,6 @@ const DoorControl = ({ doorName = 'Door 1' }) => {
                             },
                         }}
                     />
-                </Box>
-            </Card>
-
-            <Card
-                onClick={handleCameraControl}
-                sx={{
-                    bgcolor: 'rgba(255, 255, 255, 0.9)',
-                    borderRadius: '12px',
-                    p: 1.5,
-                    cursor: 'pointer',
-                    '&:hover': {
-                        bgcolor: 'rgba(255, 255, 255, 0.95)',
-                    },
-                }}
-            >
-                <Box
-                    sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 2,
-                    }}
-                >
-                    <Box
-                        sx={{
-                            width: 40,
-                            height: 40,
-                            borderRadius: '12px',
-                            bgcolor: '#4A90E2',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                        }}
-                    >
-                        <CameraAltIcon sx={{ color: 'white' }} />
-                    </Box>
-                    <Box>
-                        <Typography
-                            sx={{
-                                color: '#666',
-                                fontWeight: 500,
-                                fontSize: '0.875rem',
-                            }}
-                        >
-                            Camera Access
-                        </Typography>
-                        <Typography
-                            sx={{
-                                color: '#666',
-                                fontSize: '0.75rem',
-                            }}
-                        >
-                            Click to unlock with camera
-                        </Typography>
-                    </Box>
                 </Box>
             </Card>
         </Card>
