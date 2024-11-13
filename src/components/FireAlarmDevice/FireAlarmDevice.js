@@ -1,22 +1,43 @@
 // App.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Card, CardContent, Typography, Switch, Container, Paper } from '@mui/material';
 import { LightbulbCircle, WaterDrop } from '@mui/icons-material';
 
 const FireAlarmDevice = ({ device }) => {
     const [isOn, setIsOn] = useState(true);
-    const { name, status } = device;
+    const { deviceId, status, alive } = device;
+    useEffect(() => {
+        if (status === 'ON') {
+            setIsOn(true);
+        } else {
+            setIsOn(false);
+        }
+    }, []);
 
-    const handleToggle = (event) => {
+    const handleToggle = async (event) => {
         setIsOn(event.target.checked);
+        let action = event.target.checked ? 'ON' : 'OFF';
+        console.log(action);
+        const data = await fetch('http://localhost:5000/api/firealarm/pump', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                status: action,
+                idDevice: deviceId,
+                type: 'pump',
+            }),
+        });
+        console.log('hello', data.status);
     };
 
     return (
         <Card
             sx={{
-                background: '#d2e9dc',
+                background: 'rgba(255, 255, 255, 0.15)',
                 borderRadius: '20px',
-                width: '300px',
+                width: '280px',
                 height: '200px',
                 boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
             }}
@@ -27,18 +48,31 @@ const FireAlarmDevice = ({ device }) => {
                     sx={{
                         fontSize: '20px',
                         fontWeight: 600,
-                        color: '#4b4a49',
+                        color: 'white',
                         paddingBottom: '15px',
                         borderBottom: '1px solid #eee',
                         marginBottom: '20px',
                     }}
-                    style={{ display: 'flex', gap: '10px' }}
+                    style={{ display: 'flex', justifyContent: 'space-between' }}
                 >
-                    <div>{name}</div>
-                    <div class="status-badge" style={{ color: 'black' }}>
-                        <div class="status-dot"></div>
-                        Connected
-                    </div>
+                    <div>{deviceId}</div>
+                    {alive ? (
+                        <div
+                            class="status-badge"
+                            style={{ color: 'white', fontSize: '0.875rem', fontWeight: 'normal' }}
+                        >
+                            <div class="status-dot connected"></div>
+                            Connected
+                        </div>
+                    ) : (
+                        <div
+                            class="status-badge"
+                            style={{ color: 'white', fontSize: '0.875rem', fontWeight: 'normal' }}
+                        >
+                            <div class="status-dot disconnected"></div>
+                            Disconnected
+                        </div>
+                    )}
                 </Typography>
 
                 <Paper
