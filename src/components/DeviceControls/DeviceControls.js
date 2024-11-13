@@ -3,6 +3,7 @@ import './devicecontrols.css';
 import FireAlarmDevice from '../FireAlarmDevice/FireAlarmDevice';
 import { startTransition } from 'react';
 import DoorControl from '../DoorControl/DoorControl';
+import Light from '../Light/Light';
 function DeviceControls() {
     const listPumpControl = [
         { name: 'Pump Control 1', status: 'ON' },
@@ -24,7 +25,7 @@ function DeviceControls() {
                 </div>
                 <div className="light-container">
                     {/* Thêm điều khiển đèn vào đây .......................*/}
-                    thêm điều khiển đèn vào đây
+                    <Light />
                 </div>
             </div>
 
