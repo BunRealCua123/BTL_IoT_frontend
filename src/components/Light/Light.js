@@ -1,7 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Button, Switch, Dialog, DialogTitle, DialogContent, DialogActions, TextField,
-    IconButton, Typography, Box, Grid, Menu, MenuItem, Badge, Card, CardContent, Paper
+    Button,
+    Switch,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    TextField,
+    IconButton,
+    Typography,
+    Box,
+    Grid,
+    Menu,
+    MenuItem,
+    Badge,
+    Card,
+    CardContent,
+    Paper,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { WaterDrop } from '@mui/icons-material';
@@ -56,21 +71,21 @@ const App = () => {
     const [selectedDeviceId, setSelectedDeviceId] = useState(null);
 
     useEffect(() => {
-        loadDevicesByType("Led");
+        loadDevicesByType('Led');
 
         socket.on('light', (data) => {
-            const [name, state] = data.split(";");
-            setDevices(prevDevices =>
-                prevDevices.map(device =>
-                    device.deviceId === name ? { ...device, status: state } : device
-                )
+            const [name, state] = data.split(';');
+            setDevices((prevDevices) =>
+                prevDevices.map((device) =>
+                    device.deviceId === name ? { ...device, status: state } : device,
+                ),
             );
         });
 
         socket.on('log', (status) => {
-            const isAlive = status === 'True';  // Xác định trạng thái alive từ 'True' hoặc 'False'
-            setDevices(prevDevices =>
-                prevDevices.map(device => ({ ...device, alive: isAlive }))
+            const isAlive = status === 'True'; // Xác định trạng thái alive từ 'True' hoặc 'False'
+            setDevices((prevDevices) =>
+                prevDevices.map((device) => ({ ...device, alive: isAlive })),
             );
         });
 
@@ -84,7 +99,9 @@ const App = () => {
         try {
             const response = await fetch(`http://localhost:5000/api/device?type=${type}`);
             const data = await response.json();
-            setDevices(data.listDevice.map(device => ({ ...device, isAuto: device.mode === 'auto' })));
+            setDevices(
+                data.listDevice.map((device) => ({ ...device, isAuto: device.mode === 'auto' })),
+            );
         } catch (error) {
             console.error('Error:', error);
         }
@@ -95,7 +112,7 @@ const App = () => {
             await fetch('http://localhost:5000/api/light', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: mes })
+                body: JSON.stringify({ message: mes }),
             });
         } catch (error) {
             console.error('Error:', error);
@@ -107,7 +124,7 @@ const App = () => {
             await fetch('http://localhost:5000/api/light/auto', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: mes })
+                body: JSON.stringify({ message: mes }),
             });
         } catch (error) {
             console.error('Error:', error);
@@ -115,15 +132,13 @@ const App = () => {
     };
 
     const toggleAutoMode = (device) => {
-        setDevices(prevDevices =>
-            prevDevices.map(d =>
-                d._id === device._id ? { ...d, isAuto: !d.isAuto } : d
-            )
+        setDevices((prevDevices) =>
+            prevDevices.map((d) => (d._id === device._id ? { ...d, isAuto: !d.isAuto } : d)),
         );
         if (!device.isAuto) {
             sendAutoCommand(`${device.deviceId};auto`);
         } else {
-        // Khi bật chế độ tự động
+            // Khi bật chế độ tự động
             sendAutoCommand(`${device.deviceId};manual`);
         }
     };
@@ -134,7 +149,7 @@ const App = () => {
             await fetch('http://localhost:5000/api/register/device', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ device: deviceName, type: deviceType })
+                body: JSON.stringify({ device: deviceName, type: deviceType }),
             });
             setDeviceName('');
             setDeviceType('');
@@ -150,9 +165,9 @@ const App = () => {
             await fetch('http://localhost:5000/api/delete/device', {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: deviceId })
+                body: JSON.stringify({ id: deviceId }),
             });
-            loadDevicesByType("Led");
+            loadDevicesByType('Led');
             handleCloseMenu();
         } catch (error) {
             console.error('Error:', error);
@@ -170,8 +185,8 @@ const App = () => {
 
     return (
         <div>
-            <Grid container spacing={40} >
-                {devices.map(device => (
+            <Grid>
+                {devices.map((device) => (
                     <Grid item xs={12} sm={6} md={4} key={device._id}>
                         <Card
                             sx={{
@@ -197,25 +212,31 @@ const App = () => {
                                     }}
                                 >
                                     <div>{device.deviceId}</div>
-                                    
+
                                     <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                                         <Switch
                                             checked={device.isAuto}
                                             onChange={() => toggleAutoMode(device)}
                                             color="primary" // Thay đổi màu sắc cho switch
                                         />
-                                        <Typography 
-                                            variant="body2" 
-                                            sx={{ ml: 1, fontWeight: 'bold', color: device.isAuto ? 'green' : 'black' }} // Tăng độ đậm và thay đổi màu sắc tùy theo trạng thái
+                                        <Typography
+                                            variant="body2"
+                                            sx={{
+                                                ml: 1,
+                                                fontWeight: 'bold',
+                                                color: device.isAuto ? 'green' : 'black',
+                                            }} // Tăng độ đậm và thay đổi màu sắc tùy theo trạng thái
                                         >
                                             {device.isAuto ? 'Auto' : 'Manual'}
                                         </Typography>
-                                    </Box>  
-                                    <IconButton onClick={(event) => handleMenuOpen(event, device._id)}>
+                                    </Box>
+                                    <IconButton
+                                        onClick={(event) => handleMenuOpen(event, device._id)}
+                                    >
                                         <MoreHorizIcon />
                                     </IconButton>
                                 </Typography>
-                                
+
                                 <Box
                                     sx={{
                                         display: 'flex',
@@ -227,43 +248,65 @@ const App = () => {
                                         marginBottom: '10px',
                                     }}
                                 >
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                       
-                                            {/* <Lightbulb /> */}
-                                            <Box sx={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
-                                                <Lightbulb sx={{ fontSize: '40px', color: device.status === 'ON' ? '#FF9800' : '#757575' }} />
-                                                <BlinkingBadge
-                                                    color={device.alive ? 'success' : 'error'}
-                                                    variant="dot"
-                                                    overlap="circular"
-                                                    active={true}
-                                                    sx={{
-                                                        position: 'absolute',
-                                                        top: 0,
-                                                        right: 0,
-                                                        transform: 'translate(50%, -50%)',
-                                                    }}
-                                                />
-                                            </Box>
-                                       
-                                    </Box> 
+                                    <Box
+                                        sx={{ display: 'flex', alignItems: 'center', gap: '12px' }}
+                                    >
+                                        {/* <Lightbulb /> */}
+                                        <Box
+                                            sx={{
+                                                position: 'relative',
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                            }}
+                                        >
+                                            <Lightbulb
+                                                sx={{
+                                                    fontSize: '40px',
+                                                    color:
+                                                        device.status === 'ON'
+                                                            ? '#FF9800'
+                                                            : '#757575',
+                                                }}
+                                            />
+                                            <BlinkingBadge
+                                                color={device.alive ? 'success' : 'error'}
+                                                variant="dot"
+                                                overlap="circular"
+                                                active={true}
+                                                sx={{
+                                                    position: 'absolute',
+                                                    top: 0,
+                                                    right: 0,
+                                                    transform: 'translate(50%, -50%)',
+                                                }}
+                                            />
+                                        </Box>
+                                    </Box>
                                     <Switch
                                         checked={device.status === 'ON'}
-                                        onChange={() => sendCommand(`${device.deviceId};${device.status === 'ON' ? 'OFF' : 'ON'}`)}
+                                        onChange={() =>
+                                            sendCommand(
+                                                `${device.deviceId};${
+                                                    device.status === 'ON' ? 'OFF' : 'ON'
+                                                }`,
+                                            )
+                                        }
                                         disabled={device.isAuto}
                                     />
                                 </Box>
-
                             </CardContent>
                         </Card>
                     </Grid>
                 ))}
             </Grid>
 
-
-            <br/>
+            <br />
             <Box sx={{ position: 'relative', mt: 4 }}>
-                <IconButton color="primary" onClick={() => setDialogOpen(true)} sx={{ position: 'absolute', bottom: 0, right: 0 }}>
+                <IconButton
+                    color="primary"
+                    onClick={() => setDialogOpen(true)}
+                    sx={{ position: 'absolute', bottom: 0, right: 0 }}
+                >
                     <AddIcon />
                 </IconButton>
             </Box>
@@ -299,12 +342,10 @@ const App = () => {
                 </DialogActions>
             </Dialog>
 
-            <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleCloseMenu}
-            >
-                <MenuItem onClick={() => handleDeleteDevice(selectedDeviceId)}>Xóa Thiết Bị</MenuItem>
+            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleCloseMenu}>
+                <MenuItem onClick={() => handleDeleteDevice(selectedDeviceId)}>
+                    Xóa Thiết Bị
+                </MenuItem>
             </Menu>
         </div>
     );
