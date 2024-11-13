@@ -177,7 +177,7 @@ const App = () => {
                             sx={{
                                 background: 'rgba(255,255,255,0.1)',
                                 borderRadius: '20px',
-                                width: '300px',
+                                width: '250px',
                                 height: '200px',
                                 boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
                             }}
