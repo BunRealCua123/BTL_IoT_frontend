@@ -1,37 +1,66 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Switch, Box, Typography } from '@mui/material';
 
 const DoorControl = ({ device }) => {
-    const [doorStatus, setDoorStatus] = useState(device?.status === 'ON');
+    console.log(device);
+    const [doorStatus, setDoorStatus] = useState(device?.status === 'OPEN');
     const [isLoading, setIsLoading] = useState(false);
 
-    // Cập nhật doorStatus khi device prop thay đổi
-    useEffect(() => {
-        if (device) {
-            setDoorStatus(device.status === 'ON');
-        }
-    }, [device]);
+    const checkDoorStatus = useCallback(async () => {
+        if (!device?._id) return;
 
-    const handleDoorControl = async () => {
-        setIsLoading(true);
         try {
-            const action = !doorStatus ? 'ON' : 'OFF';
-            const response = await fetch('http://localhost:5000/api/device', {
-                method: 'PUT',
+            const response = await fetch('http://localhost:5000/api/door', {
+                method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    device_id: device._id,
-                    status: action,
+                    door_id: device._id,
+                }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setDoorStatus(data.status === 'OPEN');
+            }
+        } catch (error) {
+            console.error('Error checking door status:', error);
+        }
+    }, [device?._id]); // Only recreate if device ID changes
+
+    useEffect(() => {
+        checkDoorStatus();
+    }, [checkDoorStatus]); // Now properly depends on checkDoorStatus
+
+    const handleDoorControl = async () => {
+        setIsLoading(true);
+        try {
+            const action = !doorStatus ? 'OPEN' : 'CLOSE';
+            const response = await fetch('http://localhost:5000/api/door', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    door_id: device.deviceId,
+                    action: action,
                 }),
             });
 
             if (response.ok) {
                 setDoorStatus(!doorStatus);
+            } else {
+                // Handle error responses
+                const errorData = await response.json();
+                console.error('Door control error:', errorData);
+                // Recheck actual door status in case of failure
+                checkDoorStatus();
             }
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error controlling door:', error);
+            // Recheck actual door status in case of failure
+            checkDoorStatus();
         } finally {
             setIsLoading(false);
         }
@@ -64,7 +93,7 @@ const DoorControl = ({ device }) => {
                         fontWeight: 500,
                     }}
                 >
-                    {device?.name}
+                    {device?.deviceId}
                 </Typography>
                 <Box
                     sx={{
@@ -78,7 +107,7 @@ const DoorControl = ({ device }) => {
                             width: 8,
                             height: 8,
                             borderRadius: '50%',
-                            bgcolor: device?.connected ? '#4CAF50' : '#ff0000',
+                            bgcolor: device?.alive ? '#4CAF50' : '#ff0000',
                         }}
                     />
                     <Typography
@@ -88,7 +117,7 @@ const DoorControl = ({ device }) => {
                             opacity: 0.8,
                         }}
                     >
-                        {device?.connected ? 'Connected' : 'Disconnected'}
+                        {device?.alive ? 'Connected' : 'Disconnected'}
                     </Typography>
                 </Box>
             </Box>
@@ -142,7 +171,7 @@ const DoorControl = ({ device }) => {
                                     fontSize: '0.875rem',
                                 }}
                             >
-                                {doorStatus ? 'ON' : 'OFF'}
+                                {doorStatus ? 'OPEN' : 'CLOSE'}
                             </Typography>
                             <Typography sx={{ color: '#666' }}>Door Lock</Typography>
                         </Box>
@@ -150,7 +179,7 @@ const DoorControl = ({ device }) => {
                     <Switch
                         checked={doorStatus}
                         onChange={handleDoorControl}
-                        disabled={isLoading || !device?.connected}
+                        disabled={isLoading || !device?.alive}
                         sx={{
                             '& .MuiSwitch-switchBase.Mui-checked': {
                                 color: '#FF6B6B',
