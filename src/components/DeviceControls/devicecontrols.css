@@ -36,12 +36,21 @@
     gap: 8px;
 }
 
-.status-dot {
+.status-dot.connected {
     width: 8px;
     height: 8px;
-    background: #4ade80;
+    background: #4ade80; /* Màu xanh */
     border-radius: 50%;
     box-shadow: 0 0 10px #4ade80;
+    animation: pulse 2s infinite;
+}
+
+.status-dot.disconnected {
+    width: 8px;
+    height: 8px;
+    background: #f87171; /* Màu đỏ */
+    border-radius: 50%;
+    box-shadow: 0 0 10px #f87171;
     animation: pulse 2s infinite;
 }
 

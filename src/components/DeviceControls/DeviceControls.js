@@ -1,7 +1,7 @@
 import { Switch } from '@mui/material';
 import './devicecontrols.css';
 import FireAlarmDevice from '../FireAlarmDevice/FireAlarmDevice';
-import { startTransition } from 'react';
+import { startTransition, useEffect, useState } from 'react';
 import DoorControl from '../DoorControl/DoorControl';
 import Light from '../Light/Light';
 function DeviceControls() {
@@ -9,6 +9,23 @@ function DeviceControls() {
         { name: 'Pump Control 1', status: 'ON' },
         { name: 'Pump Control 2', status: 'ON' },
     ];
+    const [listPump, setListPump] = useState([]);
+    useEffect(() => {
+        const fetchPump = async () => {
+            try {
+                const response = await fetch('http://localhost:5000/api/device?type=pump');
+                if (response.ok) {
+                    const data = await response.json();
+                    setListPump(data.listDevice);
+                    console.log(data);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        };
+        fetchPump();
+    }, []);
+    // console.log(listPump);
     return (
         <div className="device-controls">
             {/* Điều khiển bóng đèn */}
@@ -76,8 +93,8 @@ function DeviceControls() {
                     }}
                 >
                     {/* Thêm điều khiển thiết bị an toàn vào đây .......................*/}
-                    {listPumpControl.map((device) => (
-                        <FireAlarmDevice device={device} />
+                    {listPump.map((device) => (
+                        <FireAlarmDevice key={device._id} device={device} />
                     ))}
                 </div>
             </div>
