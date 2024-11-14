@@ -46,10 +46,7 @@ function DeviceControls() {
                         <h1>Smart Lighting</h1>
                         <p>Control your home lighting system</p>
                     </div>
-                    <div className="status-badge">
-                        <div className="status-dot"></div>
-                        Connected
-                    </div>
+                    
                 </div>
                 <div className="light-container">
                     <Light />

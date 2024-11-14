@@ -185,7 +185,7 @@ const App = () => {
 
     return (
         <div>
-            <Grid>
+            <Grid sx = {{display: 'flex', gap: '20px'}}>
                 {devices.map((device) => (
                     <Grid item xs={12} sm={6} md={4} key={device._id}>
                         <Card
@@ -218,6 +218,7 @@ const App = () => {
                                             checked={device.isAuto}
                                             onChange={() => toggleAutoMode(device)}
                                             color="primary" // Thay đổi màu sắc cho switch
+                                            disabled={!device.alive}
                                         />
                                         <Typography
                                             variant="body2"
@@ -230,11 +231,11 @@ const App = () => {
                                             {device.isAuto ? 'Auto' : 'Manual'}
                                         </Typography>
                                     </Box>
-                                    <IconButton
+                                    {/* <IconButton
                                         onClick={(event) => handleMenuOpen(event, device._id)}
                                     >
                                         <MoreHorizIcon />
-                                    </IconButton>
+                                    </IconButton> */}
                                 </Typography>
 
                                 <Box
@@ -291,7 +292,7 @@ const App = () => {
                                                 }`,
                                             )
                                         }
-                                        disabled={device.isAuto}
+                                        disabled={device.isAuto || !device.alive }
                                     />
                                 </Box>
                             </CardContent>
@@ -301,7 +302,7 @@ const App = () => {
             </Grid>
 
             <br />
-            <Box sx={{ position: 'relative', mt: 4 }}>
+            {/* <Box sx={{ position: 'relative', mt: 4 }}>
                 <IconButton
                     color="primary"
                     onClick={() => setDialogOpen(true)}
@@ -309,7 +310,7 @@ const App = () => {
                 >
                     <AddIcon />
                 </IconButton>
-            </Box>
+            </Box> */}
 
             <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
                 <DialogTitle>Đăng ký Thiết Bị Mới</DialogTitle>
