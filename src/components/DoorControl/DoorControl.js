@@ -1,42 +1,88 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Switch, Box, Typography } from '@mui/material';
+import { Card, Box, Typography, Button, ButtonGroup, CircularProgress } from '@mui/material';
+import { io } from 'socket.io-client';
 
 const DoorControl = ({ device }) => {
-    console.log(device);
     const [doorStatus, setDoorStatus] = useState(device?.status === 'OPEN');
     const [isLoading, setIsLoading] = useState(false);
+    const [isConnected, setIsConnected] = useState(device?.alive || false);
+    const [socket, setSocket] = useState(null);
+    const [isMoving, setIsMoving] = useState(false);
+    const [movingDirection, setMovingDirection] = useState(null);
+
+    // Initialize socket connection
+    useEffect(() => {
+        const newSocket = io('http://localhost:5000');
+        setSocket(newSocket);
+
+        return () => {
+            if (newSocket) newSocket.disconnect();
+        };
+    }, []);
+
+    // Socket event listeners
+    useEffect(() => {
+        if (!socket) return;
+
+        socket.on('door', (payload) => {
+            const [deviceId, action] = payload.split(';');
+            if (deviceId === device.deviceId) {
+                switch (action) {
+                    case 'LOGOPEN':
+                        setDoorStatus('OPEN');
+                        setIsMoving(false);
+                        setMovingDirection(null);
+                        break;
+                    case 'LOGCLOSE':
+                        setDoorStatus('CLOSE');
+                        setIsMoving(false);
+                        setMovingDirection(null);
+                        break;
+                    case 'LOGOPENING':
+                        setIsMoving(true);
+                        setMovingDirection('opening');
+                        break;
+                    case 'LOGCLOSING':
+                        setIsMoving(true);
+                        setMovingDirection('closing');
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+
+        socket.on('dooralive', (status) => {
+            setIsConnected(status === 'True');
+        });
+
+        return () => {
+            socket.off('door');
+            socket.off('dooralive');
+        };
+    }, [socket, device.deviceId]);
 
     const checkDoorStatus = useCallback(async () => {
         if (!device?._id) return;
 
         try {
-            const response = await fetch('http://localhost:5000/api/door', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    door_id: device._id,
-                }),
-            });
-
+            const response = await fetch(`http://localhost:5000/api/door?door_id=${device._id}`);
             if (response.ok) {
                 const data = await response.json();
-                setDoorStatus(data.status === 'OPEN');
+                setDoorStatus(data.status);
             }
         } catch (error) {
             console.error('Error checking door status:', error);
         }
-    }, [device?._id]); // Only recreate if device ID changes
+    }, [device?._id]);
 
     useEffect(() => {
         checkDoorStatus();
-    }, [checkDoorStatus]); // Now properly depends on checkDoorStatus
+    }, [checkDoorStatus]);
 
-    const handleDoorControl = async () => {
+    const handleDoorControl = async (action) => {
         setIsLoading(true);
         try {
-            const action = !doorStatus ? 'OPEN' : 'CLOSE';
             const response = await fetch('http://localhost:5000/api/door', {
                 method: 'POST',
                 headers: {
@@ -48,18 +94,13 @@ const DoorControl = ({ device }) => {
                 }),
             });
 
-            if (response.ok) {
-                setDoorStatus(!doorStatus);
-            } else {
-                // Handle error responses
+            if (!response.ok) {
                 const errorData = await response.json();
                 console.error('Door control error:', errorData);
-                // Recheck actual door status in case of failure
                 checkDoorStatus();
             }
         } catch (error) {
             console.error('Error controlling door:', error);
-            // Recheck actual door status in case of failure
             checkDoorStatus();
         } finally {
             setIsLoading(false);
@@ -107,7 +148,7 @@ const DoorControl = ({ device }) => {
                             width: 8,
                             height: 8,
                             borderRadius: '50%',
-                            bgcolor: device?.alive ? '#4CAF50' : '#ff0000',
+                            bgcolor: isConnected ? '#4CAF50' : '#ff0000',
                         }}
                     />
                     <Typography
@@ -117,7 +158,7 @@ const DoorControl = ({ device }) => {
                             opacity: 0.8,
                         }}
                     >
-                        {device?.alive ? 'Connected' : 'Disconnected'}
+                        {isConnected ? 'Connected' : 'Disconnected'}
                     </Typography>
                 </Box>
             </Box>
@@ -129,13 +170,7 @@ const DoorControl = ({ device }) => {
                     p: 1.5,
                 }}
             >
-                <Box
-                    sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                    }}
-                >
+                <Box sx={{ mb: 2 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         <Box
                             sx={{
@@ -166,33 +201,78 @@ const DoorControl = ({ device }) => {
                         <Box>
                             <Typography
                                 sx={{
-                                    color: doorStatus ? '#4CAF50' : '#666',
+                                    color:
+                                        doorStatus === 'OPEN'
+                                            ? 'success.main'
+                                            : doorStatus === 'CLOSE'
+                                            ? 'text.secondary'
+                                            : 'primary.main',
                                     fontWeight: 500,
                                     fontSize: '0.875rem',
                                 }}
                             >
-                                {doorStatus ? 'OPEN' : 'CLOSE'}
+                                {doorStatus}
                             </Typography>
-                            <Typography sx={{ color: '#666' }}>Door Lock</Typography>
+                            {isMoving && (
+                                <Typography
+                                    sx={{
+                                        color: 'text.secondary',
+                                        fontSize: '0.75rem',
+                                    }}
+                                >
+                                    Door is {movingDirection}...
+                                </Typography>
+                            )}
                         </Box>
                     </Box>
-                    <Switch
-                        checked={doorStatus}
-                        onChange={handleDoorControl}
-                        disabled={isLoading || !device?.alive}
+                </Box>
+
+                <ButtonGroup variant="contained" fullWidth size="small" sx={{ gap: 1 }}>
+                    <Button
+                        onClick={() => handleDoorControl('OPEN')}
+                        disabled={isLoading || !isConnected || isMoving || doorStatus === 'OPEN'}
                         sx={{
-                            '& .MuiSwitch-switchBase.Mui-checked': {
-                                color: '#FF6B6B',
-                                '&:hover': {
-                                    bgcolor: 'rgba(255, 107, 107, 0.08)',
-                                },
+                            bgcolor: doorStatus === 'OPEN' ? 'success.main' : 'grey.300',
+                            color: doorStatus === 'OPEN' ? 'white' : 'text.primary',
+                            '&:hover': {
+                                bgcolor: doorStatus === 'OPEN' ? 'success.dark' : 'grey.400',
                             },
-                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                bgcolor: '#FF6B6B',
+                            '&.Mui-disabled': {
+                                bgcolor: 'grey.300',
+                                opacity: 0.5,
                             },
                         }}
-                    />
-                </Box>
+                    >
+                        {isLoading ? <CircularProgress size={20} /> : 'OPEN'}
+                    </Button>
+                    <Button
+                        onClick={() => handleDoorControl('STOP')}
+                        disabled={isLoading || !isConnected || !isMoving}
+                        color="warning"
+                        sx={{
+                            opacity: !isConnected || !isMoving ? 0.5 : 1,
+                        }}
+                    >
+                        STOP
+                    </Button>
+                    <Button
+                        onClick={() => handleDoorControl('CLOSE')}
+                        disabled={isLoading || !isConnected || isMoving || doorStatus === 'CLOSE'}
+                        sx={{
+                            bgcolor: doorStatus === 'CLOSE' ? 'error.main' : 'grey.300',
+                            color: doorStatus === 'CLOSE' ? 'white' : 'text.primary',
+                            '&:hover': {
+                                bgcolor: doorStatus === 'CLOSE' ? 'error.dark' : 'grey.400',
+                            },
+                            '&.Mui-disabled': {
+                                bgcolor: 'grey.300',
+                                opacity: 0.5,
+                            },
+                        }}
+                    >
+                        CLOSE
+                    </Button>
+                </ButtonGroup>
             </Card>
         </Card>
     );

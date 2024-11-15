@@ -10,7 +10,7 @@ import {
     IconButton,
     Typography,
     Box,
-    Grid,
+    Grid2,
     Menu,
     MenuItem,
     Badge,
@@ -185,9 +185,9 @@ const App = () => {
 
     return (
         <div>
-            <Grid>
+            <Grid2 sx={{ display: 'flex', gap: '10px' }}>
                 {devices.map((device) => (
-                    <Grid item xs={12} sm={6} md={4} key={device._id}>
+                    <Grid2 item xs={12} sm={6} md={4} key={device._id}>
                         <Card
                             sx={{
                                 background: 'rgba(255,255,255,0.1)',
@@ -296,9 +296,9 @@ const App = () => {
                                 </Box>
                             </CardContent>
                         </Card>
-                    </Grid>
+                    </Grid2>
                 ))}
-            </Grid>
+            </Grid2>
 
             <br />
             <Box sx={{ position: 'relative', mt: 4 }}>
