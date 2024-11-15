@@ -27,7 +27,6 @@ import { motion } from 'framer-motion';
 import io from 'socket.io-client';
 
 // Socket setup
-const socket = io('http://localhost:5000');
 
 // Styled components
 const Lightbulb = styled(LightbulbIcon)(({ theme, status }) => ({
@@ -69,9 +68,10 @@ const App = () => {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
     const [selectedDeviceId, setSelectedDeviceId] = useState(null);
-
+    // const [socket, setSocket] = useState(null);
     useEffect(() => {
         loadDevicesByType('Led');
+        const socket = io('http://localhost:5000');
 
         socket.on('light', (data) => {
             const [name, state] = data.split(';');

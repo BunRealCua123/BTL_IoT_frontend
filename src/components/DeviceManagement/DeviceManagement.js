@@ -284,6 +284,7 @@ const DeviceManagement = () => {
                             >
                                 <MenuItem value="Led">Led</MenuItem>
                                 <MenuItem value="door">Door</MenuItem>
+                                <MenuItem value="pump">pump</MenuItem>
                             </Select>
                         </FormControl>
                     </Box>
