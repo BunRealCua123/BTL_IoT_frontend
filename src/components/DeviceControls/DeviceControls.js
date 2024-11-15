@@ -4,14 +4,30 @@ import FireAlarmDevice from '../FireAlarmDevice/FireAlarmDevice';
 import { startTransition, useEffect, useState } from 'react';
 import DoorControl from '../DoorControl/DoorControl';
 import Light from '../Light/Light';
+import io from 'socket.io-client';
 
 function DeviceControls() {
-    const listPumpControl = [
-        { name: 'Pump Control 1', status: 'ON' },
-        { name: 'Pump Control 2', status: 'ON' },
-    ];
+
+    // const listPumpControl = [
+    //     { name: 'Pump Control 1', status: 'ON' },
+    //     { name: 'Pump Control 2', status: 'ON' },
+    // ];
     const [listPump, setListPump] = useState([]);
     const [listDoors, setListDoors] = useState([]);
+
+    useEffect(() => {
+        const socket = io('http://localhost:5000');
+        socket.on('pump', (data) => {
+            const isAlive = data === 'True' ? true : false;
+            console.log('Pump is alive:', isAlive);
+            setListPump((prevListPump) =>
+                prevListPump.map((pump) => ({ ...pump, alive: isAlive })),
+            );
+        });
+        return () => {
+            socket.off('pump');
+        };
+    }, []);
 
     useEffect(() => {
         const fetchDevices = async () => {
@@ -46,10 +62,7 @@ function DeviceControls() {
                         <h1>Smart Lighting</h1>
                         <p>Control your home lighting system</p>
                     </div>
-                    <div className="status-badge">
-                        <div className="status-dot"></div>
-                        Connected
-                    </div>
+                    
                 </div>
                 <div className="light-container">
                     <Light />

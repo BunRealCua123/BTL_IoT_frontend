@@ -27,7 +27,6 @@ import { motion } from 'framer-motion';
 import io from 'socket.io-client';
 
 // Socket setup
-const socket = io('http://localhost:5000');
 
 // Styled components
 const Lightbulb = styled(LightbulbIcon)(({ theme, status }) => ({
@@ -69,9 +68,10 @@ const App = () => {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
     const [selectedDeviceId, setSelectedDeviceId] = useState(null);
-
+    // const [socket, setSocket] = useState(null);
     useEffect(() => {
         loadDevicesByType('Led');
+        const socket = io('http://localhost:5000');
 
         socket.on('light', (data) => {
             const [name, state] = data.split(';');
@@ -192,7 +192,7 @@ const App = () => {
                             sx={{
                                 background: 'rgba(255,255,255,0.1)',
                                 borderRadius: '20px',
-                                width: '300px',
+                                width: '250px',
                                 height: '200px',
                                 boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
                             }}
@@ -218,6 +218,7 @@ const App = () => {
                                             checked={device.isAuto}
                                             onChange={() => toggleAutoMode(device)}
                                             color="primary" // Thay đổi màu sắc cho switch
+                                            disabled={!device.alive}
                                         />
                                         <Typography
                                             variant="body2"
@@ -230,11 +231,11 @@ const App = () => {
                                             {device.isAuto ? 'Auto' : 'Manual'}
                                         </Typography>
                                     </Box>
-                                    <IconButton
+                                    {/* <IconButton
                                         onClick={(event) => handleMenuOpen(event, device._id)}
                                     >
                                         <MoreHorizIcon />
-                                    </IconButton>
+                                    </IconButton> */}
                                 </Typography>
 
                                 <Box
@@ -291,7 +292,7 @@ const App = () => {
                                                 }`,
                                             )
                                         }
-                                        disabled={device.isAuto}
+                                        disabled={device.isAuto || !device.alive}
                                     />
                                 </Box>
                             </CardContent>
@@ -301,7 +302,7 @@ const App = () => {
             </Grid2>
 
             <br />
-            <Box sx={{ position: 'relative', mt: 4 }}>
+            {/* <Box sx={{ position: 'relative', mt: 4 }}>
                 <IconButton
                     color="primary"
                     onClick={() => setDialogOpen(true)}
@@ -309,7 +310,7 @@ const App = () => {
                 >
                     <AddIcon />
                 </IconButton>
-            </Box>
+            </Box> */}
 
             <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
                 <DialogTitle>Đăng ký Thiết Bị Mới</DialogTitle>
