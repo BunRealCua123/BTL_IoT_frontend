@@ -20,7 +20,7 @@ function Sidebar() {
                     <Shield className="sidebar-icon" />
                     <span className="menu-text">Security</span>
                 </div>
-                <div className="menu-item">
+                <div className="menu-item" onClick={() => navigate('/users')}>
                     <People className="sidebar-icon" />
                     <span className="menu-text">People</span>
                 </div>

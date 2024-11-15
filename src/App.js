@@ -4,6 +4,8 @@ import Sidebar from './components/Sidebar/Sidebar';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import MainContent from './components/MainContent/MainContent';
 import DeviceManagement from './components/DeviceManagement/DeviceManagement';
+import UserList from './components/UserList/UserList';
+import UserDetail from './components/UserDetail/UserDetail';
 
 function App() {
     return (
@@ -14,6 +16,8 @@ function App() {
                     <Routes>
                         <Route path="/" element={<MainContent />} />
                         <Route path="/devices" element={<DeviceManagement />} />
+                        <Route path="/users" element={<UserList />} />
+                        <Route path="/users/:id" element={<UserDetail />} />
                         {/* Add more routes as needed */}
                     </Routes>
                 </div>
