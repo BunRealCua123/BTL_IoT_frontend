@@ -9,10 +9,11 @@ import io from 'socket.io-client';
 import { useEffect, useState } from 'react';
 
 function MainContent() {
-    const socket = io('http://localhost:5000');
     const [isFire, setIsFire] = useState(false);
     const [close, setClose] = useState(false);
     useEffect(() => {
+        const socket = io('http://localhost:5000');
+
         socket.on('firealarm', (data) => {
             const [device, status, pump_status] = data.split(';');
             if (status === 'YES') {

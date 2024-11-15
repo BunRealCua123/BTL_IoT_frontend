@@ -7,7 +7,6 @@ import Light from '../Light/Light';
 import io from 'socket.io-client';
 
 function DeviceControls() {
-    const socket = io('http://localhost:5000');
 
     // const listPumpControl = [
     //     { name: 'Pump Control 1', status: 'ON' },
@@ -17,6 +16,7 @@ function DeviceControls() {
     const [listDoors, setListDoors] = useState([]);
 
     useEffect(() => {
+        const socket = io('http://localhost:5000');
         socket.on('pump', (data) => {
             const isAlive = data === 'True' ? true : false;
             console.log('Pump is alive:', isAlive);
