@@ -55,7 +55,7 @@ function Login({ onLoginSuccess }) {
                 setErrorMessage(response.data.message || 'Sai tên đăng nhập hoặc mật khẩu');
             }
         } catch (error) {
-            setErrorMessage('Lỗi kết nối đến server. Vui lòng thử lại.');
+            setErrorMessage('Sai tên đăng nhập hoặc mật khẩu');
         }
     };
 
