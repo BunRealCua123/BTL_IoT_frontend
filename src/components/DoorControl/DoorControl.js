@@ -8,6 +8,7 @@ const DoorControl = ({ device }) => {
     const [isConnected, setIsConnected] = useState(device?.alive || false);
     const [socket, setSocket] = useState(null);
     const [isMoving, setIsMoving] = useState(false);
+    const [isStopped, setIsStopped] = useState(false);
     const [movingDirection, setMovingDirection] = useState(null);
 
     // Initialize socket connection
@@ -40,11 +41,19 @@ const DoorControl = ({ device }) => {
                         break;
                     case 'LOGOPENING':
                         setIsMoving(true);
+                        setIsStopped(false);
                         setMovingDirection('opening');
                         break;
                     case 'LOGCLOSING':
                         setIsMoving(true);
+                        setIsStopped(false);
                         setMovingDirection('closing');
+                        break;
+                    case 'LOGSTOP':
+                        setIsMoving(false);
+                        setDoorStatus('STOPPED');
+                        setMovingDirection('stopped');
+                        setIsStopped(true);
                         break;
                     default:
                         break;
@@ -247,7 +256,7 @@ const DoorControl = ({ device }) => {
                     </Button>
                     <Button
                         onClick={() => handleDoorControl('STOP')}
-                        disabled={isLoading || !isConnected || !isMoving}
+                        disabled={isLoading || !isConnected || !isMoving || isStopped}
                         color="warning"
                         sx={{
                             opacity: !isConnected || !isMoving ? 0.5 : 1,
