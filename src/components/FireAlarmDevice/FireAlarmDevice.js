@@ -4,7 +4,7 @@ import { Box, Card, CardContent, Typography, Switch, Container, Paper } from '@m
 import { LightbulbCircle, WaterDrop } from '@mui/icons-material';
 
 const FireAlarmDevice = ({ device }) => {
-    console.log("FireAlarm");
+    console.log('FireAlarm');
     const [isOn, setIsOn] = useState(true);
     const { deviceId, status, alive } = device;
     useEffect(() => {
@@ -139,6 +139,7 @@ const FireAlarmDevice = ({ device }) => {
                     <Switch
                         checked={isOn}
                         onChange={handleToggle}
+                        disabled={!alive}
                         sx={{
                             '& .MuiSwitch-switchBase.Mui-checked': {
                                 color: '#8b7ff9',
