@@ -15,9 +15,8 @@ import { useLocation } from 'react-router-dom';
 
 const UserDetail = () => {
     const [showPassword, setShowPassword] = useState(false);
-    const [image1, setImage1] = useState(null);
-    const [image2, setImage2] = useState(null);
     const location = useLocation();
+    const id = location.pathname.split('/').pop();
     console.log(location.pathname.split('/').pop());
     // Demo data - replace with API call later
     // const demoUser = {
@@ -31,19 +30,17 @@ const UserDetail = () => {
         password: '',
         image1: '',
         image2: '',
+        idImage1: '',
+        idImage2: '',
     });
 
+    const getUser = async () => {
+        const response = await fetch(`http://localhost:5000/api/user/detailuser?_id=${id}`);
+        const data = await response.json();
+        console.log('data', data.user);
+        setUser({ ...user, ...data.user });
+    };
     useEffect(() => {
-        const getUser = async () => {
-            const response = await fetch(
-                `http://localhost:5000/api/user/detailuser?_id=${location.pathname
-                    .split('/')
-                    .pop()}`,
-            );
-            const data = await response.json();
-            console.log('data', data.user);
-            setUser({ ...user, ...data.user });
-        };
         getUser();
     }, []);
     // console.log('user', user);
@@ -63,35 +60,91 @@ const UserDetail = () => {
         }
     };
 
-    const handleSave = async () => {
-        const reponse = await fetch('http://localhost:5000/api/user/updateimage', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                _id: location.pathname.split('/').pop(),
-                image1: user.image1,
-                image2: user.image2,
-            }),
-        });
-        const data = await reponse.json();
-        console.log('data', data);
-
-        // Đoạn này để add face vào database
-        const reponse2 = await fetch('http://localhost:8000/faces/add', {
+    const fetchImage = async (name, common_name, image) => {
+        const response = await fetch('http://localhost:8000/faces/add', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                image_base64: user.image1,
-                name: user.name,
-                common_name: user.username,
+                image_base64: image,
+                name: name,
+                common_name: common_name,
             }),
         });
-        const data2 = await reponse2.json();
-        console.log('data2', data2);
+        const data = await response.json();
+        console.log('data', data);
+        if (response.ok) {
+            return data.face_id;
+        }
+        return false;
+    };
+
+    const fetchDeleteImage = async (idImage) => {
+        if (idImage) {
+            const response = await fetch(`http://localhost:8000/faces/${idImage}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            const data = await response.json();
+            console.log('data', data);
+            return response.ok;
+        }
+        return true;
+    };
+
+    const handleSave = async () => {
+        // Đoạn này để add face vào database
+        // const reponse2 = await fetch('http://localhost:8000/faces/add', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify({
+        //         image_base64: user.image1,
+        //         name: user.name,
+        //         common_name: user.username,
+        //     }),
+        // });
+        // const data2 = await reponse2.json();
+        // console.log('data2', data2);
+        if (fetchDeleteImage(user.idImage1) && fetchDeleteImage(user.idImage2)) {
+            const idImage1 = await fetchImage(user.name + '1', user.username, user.image1);
+            const idImage2 = await fetchImage(user.name + '2', user.username, user.image2);
+            //add thành công mới update trên mongodb
+            if (idImage1 && idImage2) {
+                const reponse = await fetch('http://localhost:5000/api/user/updateimage', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        _id: location.pathname.split('/').pop(),
+                        image1: user.image1,
+                        image2: user.image2,
+                        idImage1: idImage1,
+                        idImage2: idImage2,
+                    }),
+                });
+                const data = await reponse.json();
+                console.log('data', data);
+                if (reponse.ok) {
+                    alert('Update successfully');
+                    getUser();
+                }
+            } else if (!idImage1) {
+                alert('Upload image 1 failed');
+                fetchDeleteImage(idImage2);
+            } else if (!idImage2) {
+                alert('Upload image 2 failed');
+                fetchDeleteImage(idImage1);
+            }
+        } else {
+            alert('Delete image failed');
+        }
+
         // Add API call to save changes
     };
 
