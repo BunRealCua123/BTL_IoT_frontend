@@ -25,6 +25,7 @@ import {
     Check as CheckIcon,
     Error as ErrorIcon,
 } from '@mui/icons-material';
+import io from 'socket.io-client';
 
 const DeviceManagement = () => {
     const [devices, setDevices] = useState([]);
@@ -34,6 +35,58 @@ const DeviceManagement = () => {
         device: '',
         type: '',
     });
+    const [socket, setSocket] = useState(null);
+
+    // Initialize socket connection
+    useEffect(() => {
+        const newSocket = io('http://localhost:5000');
+        setSocket(newSocket);
+
+        // Socket cleanup on component unmount
+        return () => newSocket.disconnect();
+    }, []);
+
+    // Listen for device updates
+    useEffect(() => {
+        if (!socket) {
+            return;
+        }
+        // LED socket handler
+        socket.on('log', (status) => {
+            setDevices((prevDevices) => {
+                return prevDevices.map((device) => {
+                    if (device.type === 'Led') {
+                        return { ...device, alive: status === 'True' };
+                    }
+                    return device;
+                });
+            });
+        });
+
+        // Door socket handler
+        socket.on('dooralive', (status) => {
+            setDevices((prevDevices) => {
+                return prevDevices.map((device) => {
+                    if (device.type === 'door') {
+                        return { ...device, alive: status === 'True' };
+                    }
+                    return device;
+                });
+            });
+        });
+
+        // Pump socket handler
+        socket.on('pump', (status) => {
+            setDevices((prevDevices) => {
+                return prevDevices.map((device) => {
+                    if (device.type === 'pump') {
+                        return { ...device, alive: status === 'True' };
+                    }
+                    return device;
+                });
+            });
+        });
+    }, [socket]);
 
     useEffect(() => {
         fetchDevices();

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Box, Card, CardContent, CardMedia, Typography } from '@mui/material';
 import io from 'socket.io-client';
 
-const socket = io('http://localhost:5000'); // Adjust URL to match your backend
+// Adjust URL to match your backend
 
 const RecognitionDisplay = () => {
     const [recognition, setRecognition] = useState(null);
@@ -21,7 +21,7 @@ const RecognitionDisplay = () => {
         };
 
         fetchLatestRecognition();
-
+        const socket = io('http://localhost:5000');
         socket.on('door_recognition', (newRecognition) => {
             setRecognition(newRecognition);
         });
