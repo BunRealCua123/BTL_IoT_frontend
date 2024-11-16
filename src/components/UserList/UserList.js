@@ -118,7 +118,25 @@ const UserList = () => {
         setErrors({});
     };
 
+    const fetchDeleteImage = async (idImage) => {
+        if (idImage) {
+            const response = await fetch(`http://localhost:8000/faces/${idImage}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            const data = await response.json();
+            console.log('data', data);
+            return response.ok;
+        }
+        return true;
+    };
+
     const handleDeleteUser = async () => {
+        if (fetchDeleteImage(selectedUser.idImage1) && fetchDeleteImage(selectedUser.idImage2)) {
+            console.log('delete image success');
+        }
         const response = await fetch(
             `http://localhost:5000/api/user/delete?_id=${selectedUser._id}`,
             {
@@ -135,7 +153,7 @@ const UserList = () => {
     const handleEdit = (userId) => {
         navigate(`/users/${userId}`);
     };
-
+    // console.log('selectedUser', selectedUser);
     return (
         <Container maxWidth="lg" sx={{ mt: 4 }}>
             <div
