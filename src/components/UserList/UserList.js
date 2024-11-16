@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Table,
     TableBody,
@@ -31,10 +31,20 @@ import { useNavigate } from 'react-router-dom';
 const UserList = () => {
     const navigate = useNavigate();
     const [users, setUsers] = useState([
-        { id: 1, name: 'John Doe', username: 'johndoe', role: 'Admin' },
-        { id: 2, name: 'Jane Smith', username: 'janesmith', role: 'User' },
-        { id: 3, name: 'Mike Johnson', username: 'mikejohnson', role: 'Moderator' },
+        // { id: 1, name: 'John Doe', username: 'johndoe', role: 'Admin' },
+        // { id: 2, name: 'Jane Smith', username: 'janesmith', role: 'User' },
+        // { id: 3, name: 'Mike Johnson', username: 'mikejohnson', role: 'Moderator' },
     ]);
+
+    const getUsers = async () => {
+        const response = await fetch('http://localhost:5000/api/user/getusers');
+        const data = await response.json();
+        console.log(data);
+        setUsers(data.listUser);
+    };
+    useEffect(() => {
+        getUsers();
+    }, []);
 
     const [openAddDialog, setOpenAddDialog] = useState(false);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -44,7 +54,7 @@ const UserList = () => {
         username: '',
         password: '',
         confirmPassword: '',
-        role: 'User',
+        role: 'user',
     });
     const [errors, setErrors] = useState({});
 
@@ -63,8 +73,8 @@ const UserList = () => {
 
         if (!newUser.password) {
             newErrors.password = 'Password is required';
-        } else if (newUser.password.length < 6) {
-            newErrors.password = 'Password must be at least 6 characters';
+        } else if (newUser.password.length < 5) {
+            newErrors.password = 'Password must be at least 5 characters';
         }
 
         if (!newUser.confirmPassword) {
@@ -77,11 +87,21 @@ const UserList = () => {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleAddUser = () => {
+    const handleAddUser = async () => {
         if (validateForm()) {
-            const userId = Math.max(...users.map((u) => u.id), 0) + 1;
-            const { confirmPassword, ...userWithoutConfirm } = newUser;
-            setUsers([...users, { ...userWithoutConfirm, id: userId }]);
+            // const userId = Math.max(...users.map((u) => u.id), 0) + 1;
+            // const { confirmPassword, ...userWithoutConfirm } = newUser;
+            // setUsers([...users, { ...userWithoutConfirm, id: userId }]);
+            const response = await fetch('http://localhost:5000/api/user/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newUser),
+            });
+            const data = await response.json();
+            console.log(data);
+            getUsers();
             handleCloseAddDialog();
         }
     };
@@ -93,15 +113,23 @@ const UserList = () => {
             username: '',
             password: '',
             confirmPassword: '',
-            role: 'User',
+            role: 'user',
         });
         setErrors({});
     };
 
-    const handleDeleteUser = () => {
-        setUsers(users.filter((user) => user.id !== selectedUser.id));
+    const handleDeleteUser = async () => {
+        const response = await fetch(
+            `http://localhost:5000/api/user/delete?_id=${selectedUser._id}`,
+            {
+                method: 'DELETE',
+            },
+        );
+        const data = await response.json();
+        console.log(data);
         setSelectedUser(null);
         setOpenDeleteDialog(false);
+        getUsers();
     };
 
     const handleEdit = (userId) => {
@@ -141,14 +169,14 @@ const UserList = () => {
                     </TableHead>
                     <TableBody>
                         {users.map((user) => (
-                            <TableRow key={user.id} hover>
+                            <TableRow key={user._id} hover>
                                 <TableCell>{user.name}</TableCell>
                                 <TableCell>{user.username}</TableCell>
                                 <TableCell>{user.role}</TableCell>
                                 <TableCell align="right">
                                     <IconButton
                                         color="primary"
-                                        onClick={() => handleEdit(user.id)}
+                                        onClick={() => handleEdit(user._id)}
                                         size="small"
                                     >
                                         <EditIcon />
@@ -224,9 +252,9 @@ const UserList = () => {
                             label="Role"
                             onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
                         >
-                            <MenuItem value="Admin">Admin</MenuItem>
-                            <MenuItem value="Moderator">Moderator</MenuItem>
-                            <MenuItem value="User">User</MenuItem>
+                            <MenuItem value="admin">Admin</MenuItem>
+                            <MenuItem value="moderator">Moderator</MenuItem>
+                            <MenuItem value="user">User</MenuItem>
                         </Select>
                     </FormControl>
                 </DialogContent>
