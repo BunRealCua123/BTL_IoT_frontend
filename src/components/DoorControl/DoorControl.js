@@ -71,23 +71,23 @@ const DoorControl = ({ device }) => {
         };
     }, [socket, device.deviceId]);
 
-    const checkDoorStatus = useCallback(async () => {
-        if (!device?._id) return;
+    // const checkDoorStatus = useCallback(async () => {
+    //     if (!device?._id) return;
 
-        try {
-            const response = await fetch(`http://localhost:5000/api/door?door_id=${device._id}`);
-            if (response.ok) {
-                const data = await response.json();
-                setDoorStatus(data.status);
-            }
-        } catch (error) {
-            console.error('Error checking door status:', error);
-        }
-    }, [device?._id]);
+    //     try {
+    //         const response = await fetch(`http://localhost:5000/api/door?door_id=${device._id}`);
+    //         if (response.ok) {
+    //             const data = await response.json();
+    //             setDoorStatus(data.status);
+    //         }
+    //     } catch (error) {
+    //         console.error('Error checking door status:', error);
+    //     }
+    // }, [device?._id]);
 
-    useEffect(() => {
-        checkDoorStatus();
-    }, [checkDoorStatus]);
+    // useEffect(() => {
+    //     checkDoorStatus();
+    // }, [checkDoorStatus]);
 
     const handleDoorControl = async (action) => {
         setIsLoading(true);
@@ -106,11 +106,11 @@ const DoorControl = ({ device }) => {
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error('Door control error:', errorData);
-                checkDoorStatus();
+                // checkDoorStatus();
             }
         } catch (error) {
             console.error('Error controlling door:', error);
-            checkDoorStatus();
+            // checkDoorStatus();
         } finally {
             setIsLoading(false);
         }

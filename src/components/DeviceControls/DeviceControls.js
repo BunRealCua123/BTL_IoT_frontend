@@ -7,7 +7,6 @@ import Light from '../Light/Light';
 import io from 'socket.io-client';
 
 function DeviceControls() {
-
     // const listPumpControl = [
     //     { name: 'Pump Control 1', status: 'ON' },
     //     { name: 'Pump Control 2', status: 'ON' },
@@ -62,7 +61,6 @@ function DeviceControls() {
                         <h1>Smart Lighting</h1>
                         <p>Control your home lighting system</p>
                     </div>
-                    
                 </div>
                 <div className="light-container">
                     <Light />
