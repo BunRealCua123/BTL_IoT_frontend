@@ -5,49 +5,36 @@ import WelcomeCard from '../WelcomeCard/WelcomeCard';
 import FireAlert from '../FireAlert/FireAlert';
 import './maincontent.css';
 import io from 'socket.io-client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 function MainContent() {
     const [isFire, setIsFire] = useState(false);
-    const [close, setClose] = useState(false);
-    const [fireTimeout, setFireTimeout] = useState(null); // State để quản lý thời gian chờ
+    const [showAlert, setShowAlert] = useState(true);
+    const timeoutRef = useRef(null);
 
     useEffect(() => {
         const socket = io('http://localhost:5000');
-
+        const close1 = false;
         socket.on('firealarm', (data) => {
             const [device, status, pump_status] = data.split(';');
-            if (status === 'YES') {
-                if (!close) {
-                    setIsFire(true);
-                } else {
-                    const timeout = setTimeout(() => {
-                        setClose(false);
-                    }, 20000);
-                    // setFireTimeout(timeout);
-                }
+            if (status === 'YES' && showAlert === true) {
+                setIsFire(true);
             }
         });
 
         return () => {
             socket.off('firealarm');
         };
-    }, [close, fireTimeout]);
+    }, [showAlert]);
 
     const handleClose = () => {
         setIsFire(false);
-        setClose(true);
-        // if (fireTimeout) {
-        //     clearTimeout(fireTimeout);
-        // }
-        // const timeout = setTimeout(() => {
-        //     setIsFire(true);
-        //     setClose(false);
-        // }, 60000); // 1 phút
-        // setFireTimeout(timeout);
+        setShowAlert(false);
+        timeoutRef.current = setTimeout(() => {
+            setShowAlert(true);
+        }, 10000);
     };
 
-    console.log('close', close);
     const username = localStorage.getItem('name');
     return (
         <div className="main-content">
