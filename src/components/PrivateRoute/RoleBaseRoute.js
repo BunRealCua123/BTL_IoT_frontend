@@ -2,9 +2,8 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 
 const RoleBasedRoute = ({ children, requiredRole }) => {
-  const userRole = localStorage.getItem("role");
 
-  if (userRole !== requiredRole) {
+  if (requiredRole != 'admin') {
     return <Navigate to="/" />; 
   }
 

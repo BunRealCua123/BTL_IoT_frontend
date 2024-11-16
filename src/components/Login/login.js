@@ -48,7 +48,7 @@ function Login({ onLoginSuccess }) {
                 localStorage.setItem('name', result.data.name);
                 localStorage.setItem('role', result.data.role);
                 localStorage.setItem('_id', result.data._id);
-
+                onLoginSuccess(result.data.role);
                 navigate('/'); // Điều hướng đến trang chính
             }
             } else {
