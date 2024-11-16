@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Container,
     TextField,
@@ -11,18 +11,42 @@ import {
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
+import { useLocation } from 'react-router-dom';
 
 const UserDetail = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [image1, setImage1] = useState(null);
     const [image2, setImage2] = useState(null);
-
+    const location = useLocation();
+    console.log(location.pathname.split('/').pop());
     // Demo data - replace with API call later
-    const demoUser = {
-        name: 'John Doe',
-        username: 'johndoe',
-        password: '123456',
-    };
+    // const demoUser = {
+    //     name: 'John Doe',
+    //     username: 'johndoe',
+    //     password: '123456',
+    // };
+    const [user, setUser] = useState({
+        name: '',
+        username: '',
+        password: '',
+        image1: '',
+        image2: '',
+    });
+
+    useEffect(() => {
+        const getUser = async () => {
+            const response = await fetch(
+                `http://localhost:5000/api/user/detailuser?_id=${location.pathname
+                    .split('/')
+                    .pop()}`,
+            );
+            const data = await response.json();
+            console.log('data', data.user);
+            setUser({ ...user, ...data.user });
+        };
+        getUser();
+    }, []);
+    // console.log('user', user);
 
     const handleImageUpload = (event, imageNumber) => {
         const file = event.target.files[0];
@@ -30,18 +54,45 @@ const UserDetail = () => {
             const reader = new FileReader();
             reader.onloadend = () => {
                 if (imageNumber === 1) {
-                    setImage1(reader.result);
+                    setUser({ ...user, image1: reader.result });
                 } else {
-                    setImage2(reader.result);
+                    setUser({ ...user, image2: reader.result });
                 }
             };
             reader.readAsDataURL(file);
         }
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
+        const reponse = await fetch('http://localhost:5000/api/user/updateimage', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                _id: location.pathname.split('/').pop(),
+                image1: user.image1,
+                image2: user.image2,
+            }),
+        });
+        const data = await reponse.json();
+        console.log('data', data);
+
+        // Đoạn này để add face vào database
+        const reponse2 = await fetch('http://localhost:8000/faces/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                image_base64: user.image1,
+                name: user.name,
+                common_name: user.username,
+            }),
+        });
+        const data2 = await reponse2.json();
+        console.log('data2', data2);
         // Add API call to save changes
-        console.log('Saving changes...');
     };
 
     return (
@@ -56,22 +107,24 @@ const UserDetail = () => {
                         <TextField
                             fullWidth
                             label="Name"
-                            defaultValue={demoUser.name}
+                            value={user.name}
                             sx={{ mb: 3 }}
+                            disabled
                         />
 
                         <TextField
                             fullWidth
                             label="Username"
-                            defaultValue={demoUser.username}
+                            value={user.username}
                             sx={{ mb: 3 }}
+                            disabled
                         />
 
                         <TextField
                             fullWidth
                             label="Password"
                             type={showPassword ? 'text' : 'password'}
-                            defaultValue={demoUser.password}
+                            value={user.password}
                             InputProps={{
                                 endAdornment: (
                                     <IconButton
@@ -83,6 +136,7 @@ const UserDetail = () => {
                                 ),
                             }}
                             sx={{ mb: 3 }}
+                            disabled
                         />
                     </Grid2>
 
@@ -123,9 +177,9 @@ const UserDetail = () => {
                                     overflow: 'hidden',
                                 }}
                             >
-                                {image1 ? (
+                                {user.image1 ? (
                                     <img
-                                        src={image1}
+                                        src={user.image1}
                                         alt="Face 1"
                                         style={{
                                             width: '100%',
@@ -164,9 +218,9 @@ const UserDetail = () => {
                                     overflow: 'hidden',
                                 }}
                             >
-                                {image2 ? (
+                                {user.image2 ? (
                                     <img
-                                        src={image2}
+                                        src={user.image2}
                                         alt="Face 2"
                                         style={{
                                             width: '100%',
