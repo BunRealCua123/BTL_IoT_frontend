@@ -8,6 +8,7 @@ const RecognitionDisplay = () => {
     const [recognition, setRecognition] = useState(null);
 
     useEffect(() => {
+        const socket = io('http://localhost:5000');
         const fetchLatestRecognition = async () => {
             try {
                 const response = await fetch('http://localhost:5000/api/recognitions?limit=1');
