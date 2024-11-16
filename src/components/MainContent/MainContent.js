@@ -45,10 +45,11 @@ function MainContent() {
         setClose(true);
     };
     console.log('close', close);
+    const username = localStorage.getItem('name'); 
     return (
         <div className="main-content">
             <Header />
-            <WelcomeCard />
+            <WelcomeCard username={username}/>
             <FireAlert show={isFire} onClose={handleClose} />
             <div className="content-grid">
                 <DeviceControls />

@@ -1,11 +1,12 @@
 import '../WelcomeCard/welcomecard.css';
-function WelcomeCard() {
+
+function WelcomeCard({ username }) {
     return (
         <div className="welcome-card">
             <div className="welcome-text">
-                <h1>Hello, Scarlett!</h1>
+                <h1>Hello, {username}!</h1>  {/* Hiển thị username thay vì 'Scarlett' */}
                 <p>
-                    Welcome Home! The air quality is good & fresh you can go out
+                    Welcome Home! The air quality is good & fresh, you can go out
                     today.
                 </p>
                 <div className="weather-info">

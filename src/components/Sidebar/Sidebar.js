@@ -26,7 +26,7 @@ function Sidebar() {
                 </div>
             </div>
             <div className="sidebar-bottom">
-                <div className="menu-item">
+                <div className="menu-item" onClick={() => navigate('/login')}>
                     <Logout className="sidebar-icon" />
                     <span className="menu-text">Logout</span>
                 </div>
