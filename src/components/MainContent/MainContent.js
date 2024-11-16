@@ -1,4 +1,3 @@
-import { use } from 'framer-motion/client';
 import DeviceControls from '../DeviceControls/DeviceControls';
 import Header from '../Header/Header';
 import RightSidebar from '../RightSidebar/RightSidebar';
@@ -11,45 +10,49 @@ import { useEffect, useState } from 'react';
 function MainContent() {
     const [isFire, setIsFire] = useState(false);
     const [close, setClose] = useState(false);
+    const [fireTimeout, setFireTimeout] = useState(null); // State để quản lý thời gian chờ
+
     useEffect(() => {
         const socket = io('http://localhost:5000');
 
         socket.on('firealarm', (data) => {
             const [device, status, pump_status] = data.split(';');
             if (status === 'YES') {
-                // alert(`Fire alarm detected in ${device}`);
-                setIsFire(true);
+                if (!close) {
+                    setIsFire(true);
+                } else {
+                    const timeout = setTimeout(() => {
+                        setClose(false);
+                    }, 20000);
+                    // setFireTimeout(timeout);
+                }
             }
         });
+
         return () => {
             socket.off('firealarm');
         };
-    }, []);
-
-    // useEffect(() => {
-    //     let timer;
-    //     if (close) {
-    //         timer = setTimeout(() => {
-    //             setClose(false);
-    //         }, 10000); // 60000ms = 1 phút
-    //     }
-    //     return () => {
-    //         if (timer) {
-    //             clearTimeout(timer);
-    //         }
-    //     };
-    // }, [close]);
+    }, [close, fireTimeout]);
 
     const handleClose = () => {
         setIsFire(false);
         setClose(true);
+        // if (fireTimeout) {
+        //     clearTimeout(fireTimeout);
+        // }
+        // const timeout = setTimeout(() => {
+        //     setIsFire(true);
+        //     setClose(false);
+        // }, 60000); // 1 phút
+        // setFireTimeout(timeout);
     };
+
     console.log('close', close);
-    const username = localStorage.getItem('name'); 
+    const username = localStorage.getItem('name');
     return (
         <div className="main-content">
             <Header />
-            <WelcomeCard username={username}/>
+            <WelcomeCard username={username} />
             <FireAlert show={isFire} onClose={handleClose} />
             <div className="content-grid">
                 <DeviceControls />
