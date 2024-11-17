@@ -3,6 +3,7 @@ import './devicecontrols.css';
 import FireAlarmDevice from '../FireAlarmDevice/FireAlarmDevice';
 import { startTransition, useEffect, useState } from 'react';
 import DoorControl from '../DoorControl/DoorControl';
+import RecognitionDisplay from '../RecognitionDisplay/RecognitionDisplay';
 import Light from '../Light/Light';
 import io from 'socket.io-client';
 
@@ -32,14 +33,18 @@ function DeviceControls() {
         const fetchDevices = async () => {
             try {
                 // Fetch pump devices
-                const pumpResponse = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/device?type=pump`);
+                const pumpResponse = await fetch(
+                    `${process.env.REACT_APP_SERVER_URL}/api/device?type=pump`,
+                );
                 if (pumpResponse.ok) {
                     const pumpData = await pumpResponse.json();
                     setListPump(pumpData.listDevice);
                 }
 
                 // Fetch door devices
-                const doorResponse = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/device?type=door`);
+                const doorResponse = await fetch(
+                    `${process.env.REACT_APP_SERVER_URL}/api/device?type=door`,
+                );
                 if (doorResponse.ok) {
                     const doorData = await doorResponse.json();
                     setListDoors(doorData.listDevice);
@@ -95,6 +100,7 @@ function DeviceControls() {
                     {listDoors.map((door) => (
                         <DoorControl key={door._id} device={door} />
                     ))}
+                    <RecognitionDisplay />
                 </div>
             </div>
 

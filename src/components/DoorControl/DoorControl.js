@@ -125,6 +125,7 @@ const DoorControl = ({ device }) => {
                 backdropFilter: 'blur(10px)',
                 p: 2,
                 boxShadow: 'none',
+                mx: 'auto',
             }}
         >
             <Box

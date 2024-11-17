@@ -11,7 +11,9 @@ const RecognitionDisplay = () => {
         // const socket = io('http://localhost:5000');
         const fetchLatestRecognition = async () => {
             try {
-                const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/recognitions?limit=1`);
+                const response = await fetch(
+                    `${process.env.REACT_APP_SERVER_URL}/api/recognitions?limit=1`,
+                );
                 const data = await response.json();
                 if (data.length > 0) {
                     setRecognition(data[0]);
@@ -37,7 +39,7 @@ const RecognitionDisplay = () => {
     }
 
     return (
-        <Card sx={{ mt: 2, maxWidth: 345, mx: 'auto' }}>
+        <Card sx={{ maxWidth: 345, mx: 'auto', maxHeight: 315 }}>
             <CardMedia
                 component="img"
                 height="240"
