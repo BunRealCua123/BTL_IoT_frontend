@@ -13,7 +13,7 @@ const DoorControl = ({ device }) => {
 
     // Initialize socket connection
     useEffect(() => {
-        const newSocket = io('http://localhost:5000');
+        const newSocket = io(`${process.env.REACT_APP_SERVER_URL}`);
         setSocket(newSocket);
 
         return () => {
@@ -92,7 +92,7 @@ const DoorControl = ({ device }) => {
     const handleDoorControl = async (action) => {
         setIsLoading(true);
         try {
-            const response = await fetch('http://localhost:5000/api/door', {
+            const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/door`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

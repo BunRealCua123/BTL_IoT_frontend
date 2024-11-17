@@ -71,7 +71,7 @@ const App = () => {
     // const [socket, setSocket] = useState(null);
     useEffect(() => {
         loadDevicesByType('Led');
-        const socket = io('http://localhost:5000');
+        const socket = io(`${process.env.REACT_APP_SERVER_URL}`);
 
         socket.on('light', (data) => {
             const [name, state] = data.split(';');
@@ -97,7 +97,7 @@ const App = () => {
 
     const loadDevicesByType = async (type) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/device?type=${type}`);
+            const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/device?type=${type}`);
             const data = await response.json();
             setDevices(
                 data.listDevice.map((device) => ({ ...device, isAuto: device.mode === 'auto' })),
@@ -109,7 +109,7 @@ const App = () => {
 
     const sendCommand = async (mes) => {
         try {
-            await fetch('http://localhost:5000/api/light', {
+            await fetch(`${process.env.REACT_APP_SERVER_URL}/api/light`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: mes }),
@@ -121,7 +121,7 @@ const App = () => {
 
     const sendAutoCommand = async (mes) => {
         try {
-            await fetch('http://localhost:5000/api/light/auto', {
+            await fetch(`${process.env.REACT_APP_SERVER_URL}/api/light/auto`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: mes }),
@@ -146,7 +146,7 @@ const App = () => {
     const registerDevice = async (event) => {
         event.preventDefault();
         try {
-            await fetch('http://localhost:5000/api/register/device', {
+            await fetch(`${process.env.REACT_APP_SERVER_URL}/api/register/device`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ device: deviceName, type: deviceType }),
@@ -162,7 +162,7 @@ const App = () => {
 
     const handleDeleteDevice = async (deviceId) => {
         try {
-            await fetch('http://localhost:5000/api/delete/device', {
+            await fetch(`${process.env.REACT_APP_SERVER_URL}/api/delete/device`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: deviceId }),

@@ -8,10 +8,10 @@ const RecognitionDisplay = () => {
     const [recognition, setRecognition] = useState(null);
 
     useEffect(() => {
-        const socket = io('http://localhost:5000');
+        // const socket = io('http://localhost:5000');
         const fetchLatestRecognition = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/recognitions?limit=1');
+                const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/recognitions?limit=1`);
                 const data = await response.json();
                 if (data.length > 0) {
                     setRecognition(data[0]);
@@ -22,7 +22,7 @@ const RecognitionDisplay = () => {
         };
 
         fetchLatestRecognition();
-        const socket = io('http://localhost:5000');
+        const socket = io(`${process.env.REACT_APP_SERVER_URL}`);
         socket.on('door_recognition', (newRecognition) => {
             setRecognition(newRecognition);
         });
@@ -41,7 +41,7 @@ const RecognitionDisplay = () => {
             <CardMedia
                 component="img"
                 height="240"
-                image={'http://localhost:5000/' + recognition.image_url}
+                image={`${process.env.REACT_APP_SERVER_URL}/` + recognition.image_url}
                 alt="Face Recognition"
                 sx={{ objectFit: 'cover' }}
             />

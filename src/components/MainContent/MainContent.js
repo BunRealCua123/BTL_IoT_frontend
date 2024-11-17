@@ -13,7 +13,7 @@ function MainContent() {
     const timeoutRef = useRef(null);
 
     useEffect(() => {
-        const socket = io('http://localhost:5000');
+        const socket = io(`${process.env.REACT_APP_SERVER_URL}`);
         const close1 = false;
         socket.on('firealarm', (data) => {
             const [device, status, pump_status] = data.split(';');

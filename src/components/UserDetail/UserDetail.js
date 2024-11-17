@@ -35,7 +35,7 @@ const UserDetail = () => {
     });
 
     const getUser = async () => {
-        const response = await fetch(`http://localhost:5000/api/user/detailuser?_id=${id}`);
+        const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/user/detailuser?_id=${id}`);
         const data = await response.json();
         console.log('data', data.user);
         setUser({ ...user, ...data.user });
@@ -61,7 +61,7 @@ const UserDetail = () => {
     };
 
     const fetchImage = async (name, common_name, image) => {
-        const response = await fetch('http://localhost:8000/faces/add', {
+        const response = await fetch(`${process.env.REACT_APP_AI_URL}/faces/add`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -82,7 +82,7 @@ const UserDetail = () => {
 
     const fetchDeleteImage = async (idImage) => {
         if (idImage) {
-            const response = await fetch(`http://localhost:8000/faces/${idImage}`, {
+            const response = await fetch(`${process.env.REACT_APP_AI_URL}/faces/${idImage}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -115,7 +115,7 @@ const UserDetail = () => {
             const idImage2 = await fetchImage(user.name + '2', user.username, user.image2);
             //add thành công mới update trên mongodb
             if (idImage1 && idImage2) {
-                const reponse = await fetch('http://localhost:5000/api/user/updateimage', {
+                const reponse = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/user/updateimage`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
