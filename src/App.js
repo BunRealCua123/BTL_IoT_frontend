@@ -1,6 +1,6 @@
 import './App.css';
 import Sidebar from './components/Sidebar/Sidebar';
-import { BrowserRouter, Routes, Route, useLocation,Navigate  } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import MainContent from './components/MainContent/MainContent';
 import DeviceManagement from './components/DeviceManagement/DeviceManagement';
 import Login from './components/Login/login';
@@ -11,6 +11,7 @@ import HideRoute from './components/PrivateRoute/HideRoute';
 import UserList from './components/UserList/UserList';
 import UserDetail from './components/UserDetail/UserDetail';
 import Logout from './components/Logout/logout';
+import HistoryRecognition from './components/HistoryRecognition/HistoryRecognition';
 
 function App() {
     const [login, setLogin] = useState(false);
@@ -19,38 +20,39 @@ function App() {
     const loginUser = (userRole) => {
         setLogin(true);
         setRole(userRole);
-    } 
+    };
 
     const logoutUser = () => {
         setLogin(false);
         setRole(null);
-    }
+    };
     return (
         <BrowserRouter>
-        <>      
-            <PrivateRoute isAuthenticated={login}>
-                <div style={{ display: 'flex' }}>
-                    <Sidebar requiredRole={role} />
-                    <div style={{ flexGrow: 1 }}>
-                        <Routes>
-                            <Route path="/" element={<MainContent />} />
-                        </Routes>
-                        <RoleBasedRoute requiredRole={role}>
+            <>
+                <PrivateRoute isAuthenticated={login}>
+                    <div style={{ display: 'flex' }}>
+                        <Sidebar requiredRole={role} />
+                        <div style={{ flexGrow: 1 }}>
                             <Routes>
-                                <Route path="/devices" element={<DeviceManagement />} />
-                                <Route path="/users" element={<UserList />} />
-                                <Route path="/users/:id" element={<UserDetail />} />
-                                {/* Add more routes as needed */}
+                                <Route path="/" element={<MainContent />} />
                             </Routes>
-                        </RoleBasedRoute>
+                            <RoleBasedRoute requiredRole={role}>
+                                <Routes>
+                                    <Route path="/devices" element={<DeviceManagement />} />
+                                    <Route path="/users" element={<UserList />} />
+                                    <Route path="/users/:id" element={<UserDetail />} />
+                                    <Route path="/history" element={<HistoryRecognition />} />
+                                    {/* Add more routes as needed */}
+                                </Routes>
+                            </RoleBasedRoute>
+                        </div>
                     </div>
-                </div>
-            </PrivateRoute>
-            <Routes>
-                <Route path="/login" element={<Login onLoginSuccess={loginUser} />} />
-                <Route path="/logout" element={<Logout onLogoutSuccess={logoutUser} />}/>
-            </Routes>
-        </>
+                </PrivateRoute>
+                <Routes>
+                    <Route path="/login" element={<Login onLoginSuccess={loginUser} />} />
+                    <Route path="/logout" element={<Logout onLogoutSuccess={logoutUser} />} />
+                </Routes>
+            </>
         </BrowserRouter>
     );
 }
