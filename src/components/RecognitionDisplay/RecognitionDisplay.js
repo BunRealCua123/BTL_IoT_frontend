@@ -11,8 +11,11 @@ const RecognitionDisplay = () => {
         // const socket = io('http://localhost:5000');
         const fetchLatestRecognition = async () => {
             try {
-                const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/recognitions?limit=1`);
-                const data = await response.json();
+                const response = await fetch(
+                    `${process.env.REACT_APP_SERVER_URL}/api/recognitions?limit=1`,
+                );
+                const data1 = await response.json();
+                const data = data1.records;
                 if (data.length > 0) {
                     setRecognition(data[0]);
                 }
