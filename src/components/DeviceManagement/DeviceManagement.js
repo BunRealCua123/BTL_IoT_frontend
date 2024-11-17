@@ -39,7 +39,7 @@ const DeviceManagement = () => {
 
     // Initialize socket connection
     useEffect(() => {
-        const newSocket = io('http://localhost:5000');
+        const newSocket = io(`${process.env.REACT_APP_SERVER_URL}`);
         setSocket(newSocket);
 
         // Socket cleanup on component unmount
@@ -95,7 +95,7 @@ const DeviceManagement = () => {
     const fetchDevices = async (deviceType = '') => {
         try {
             const response = await fetch(
-                `http://localhost:5000/api/device${deviceType ? `?type=${deviceType}` : ''}`,
+                `${process.env.REACT_APP_SERVER_URL}/api/device${deviceType ? `?type=${deviceType}` : ''}`,
             );
             const data = await response.json();
             setDevices(data.listDevice || []);
@@ -135,7 +135,7 @@ const DeviceManagement = () => {
 
     const handleSubmit = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/register/device', {
+            const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/register/device`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -159,7 +159,7 @@ const DeviceManagement = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this device?')) {
             try {
-                const response = await fetch('http://localhost:5000/api/delete/device', {
+                const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/delete/device`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',

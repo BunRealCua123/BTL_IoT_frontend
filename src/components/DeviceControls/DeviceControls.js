@@ -15,7 +15,7 @@ function DeviceControls() {
     const [listDoors, setListDoors] = useState([]);
 
     useEffect(() => {
-        const socket = io('http://localhost:5000');
+        const socket = io(`${process.env.REACT_APP_SERVER_URL}`);
         socket.on('pump', (data) => {
             const isAlive = data === 'True' ? true : false;
             console.log('Pump is alive:', isAlive);
@@ -32,14 +32,14 @@ function DeviceControls() {
         const fetchDevices = async () => {
             try {
                 // Fetch pump devices
-                const pumpResponse = await fetch('http://localhost:5000/api/device?type=pump');
+                const pumpResponse = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/device?type=pump`);
                 if (pumpResponse.ok) {
                     const pumpData = await pumpResponse.json();
                     setListPump(pumpData.listDevice);
                 }
 
                 // Fetch door devices
-                const doorResponse = await fetch('http://localhost:5000/api/device?type=door');
+                const doorResponse = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/device?type=door`);
                 if (doorResponse.ok) {
                     const doorData = await doorResponse.json();
                     setListDoors(doorData.listDevice);

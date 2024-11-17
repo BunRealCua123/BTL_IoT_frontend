@@ -19,8 +19,11 @@ const LightStatusChart = () => {
     const chartRef = useRef(null);
 
     useEffect(() => {
-        const socket = io('http://localhost:5000');
-
+        const socket = io(`${process.env.REACT_APP_SERVER_URL}`);
+        socket.on('connect', () => {
+            console.log('Client connected');
+            socket.emit('status');  // Gửi yêu cầu lấy logs
+        });
         socket.on('status_logs', (newLogs) => {
             setLogs((prevLogs) => [...prevLogs, ...newLogs]);
         });
@@ -33,46 +36,77 @@ const LightStatusChart = () => {
     const processData = () => {
         const datasets = {};
         const labels = [];
-
-        const limitedLogs = logs.slice(-10); // Lấy 10 bản ghi mới nhất
-
+        const latestStatuses = {}; // Lưu trạng thái của mỗi thiết bị theo thời gian
+        
+        // Lấy 10 bản ghi mới nhất
+        const limitedLogs = logs.slice(-10);
+        
+        // Tạo tập hợp nhãn (labels) chung cho tất cả các thiết bị và sắp xếp theo thứ tự thời gian
         limitedLogs.forEach((log) => {
             const timestamp = new Date(log.timestamp).toLocaleTimeString();
-
             if (!labels.includes(timestamp)) {
                 labels.push(timestamp); // Thu thập các thời điểm duy nhất cho labels
             }
-
-            if (!datasets[log.deviceId]) {
-                datasets[log.deviceId] = {
-                    label: `Device ${log.deviceId}`,
-                    data: [],
-                    borderColor:
-                        log.deviceId === 'Led1'
-                            ? 'rgba(54, 162, 235, 0.8)'
-                            : 'rgba(255, 99, 132, 0.8)',
-                    backgroundColor:
-                        log.deviceId === 'Led1'
-                            ? 'rgba(54, 162, 235, 0.2)'
-                            : 'rgba(255, 99, 132, 0.2)',
-                    pointBackgroundColor: log.deviceId === 'Led1' ? 'blue' : 'red',
-                    pointBorderWidth: 2,
-                    fill: true,
-                    tension: 0.5,
-                    borderWidth: 2,
-                };
-            }
-
-            datasets[log.deviceId].data.push(log.status === 'ON' ? 1 : 0);
         });
-
+    
+        // Sắp xếp nhãn theo thứ tự thời gian tăng dần
+        labels.sort((a, b) => {
+            return new Date(`1970/01/01 ${a}`) - new Date(`1970/01/01 ${b}`);
+        });
+    
+        // Khởi tạo datasets cho từng thiết bị
+        labels.forEach((label) => {
+            limitedLogs.forEach((log) => {
+                if (!datasets[log.deviceId]) {
+                    datasets[log.deviceId] = {
+                        label: `Device ${log.deviceId}`,
+                        data: new Array(labels.length).fill(null), // Tạo mảng dữ liệu với độ dài bằng số nhãn
+                        borderColor:
+                            log.deviceId === 'Led1'
+                                ? 'rgba(54, 162, 235, 0.8)'
+                                : 'rgba(255, 99, 132, 0.8)',
+                        backgroundColor:
+                            log.deviceId === 'Led1'
+                                ? 'rgba(54, 162, 235, 0.2)'
+                                : 'rgba(255, 99, 132, 0.2)',
+                        pointBackgroundColor: log.deviceId === 'Led1' ? 'blue' : 'red',
+                        pointBorderWidth: 2,
+                        fill: true,
+                        tension: 0.5,
+                        borderWidth: 2,
+                    };
+                }
+    
+                // Tìm vị trí của nhãn hiện tại trong labels và chèn trạng thái của thiết bị
+                const index = labels.indexOf(label);
+                if (new Date(log.timestamp).toLocaleTimeString() === label) {
+                    datasets[log.deviceId].data[index] = log.status === 'ON' ? 1 : 0;
+                }
+            });
+        });
+    
+        // Đảm bảo mỗi thiết bị có đủ dữ liệu
+        Object.keys(datasets).forEach(deviceId => {
+            // Điền trạng thái của thiết bị nếu chưa có giá trị tại một thời điểm
+            for (let i = 1; i < labels.length; i++) {
+                if (datasets[deviceId].data[i] === null) {
+                    datasets[deviceId].data[i] = datasets[deviceId].data[i - 1]; // Giữ trạng thái của lần trước
+                }
+            }
+        });
+    
         const chartDatasets = Object.values(datasets);
-
+    
         return {
             labels,
             datasets: chartDatasets,
         };
     };
+    
+    
+    
+    
+    
 
     const chartData = processData();
 

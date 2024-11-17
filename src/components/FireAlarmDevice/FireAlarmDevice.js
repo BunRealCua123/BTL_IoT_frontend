@@ -19,7 +19,7 @@ const FireAlarmDevice = ({ device }) => {
         setIsOn(event.target.checked);
         let action = event.target.checked ? 'ON' : 'OFF';
         console.log(action);
-        const data = await fetch('http://localhost:5000/api/firealarm/pump', {
+        const data = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/firealarm/pump`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

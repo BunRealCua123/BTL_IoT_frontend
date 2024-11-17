@@ -37,7 +37,7 @@ const UserList = () => {
     ]);
 
     const getUsers = async () => {
-        const response = await fetch('http://localhost:5000/api/user/getusers');
+        const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/user/getusers`);
         const data = await response.json();
         console.log(data);
         setUsers(data.listUser);
@@ -92,7 +92,7 @@ const UserList = () => {
             // const userId = Math.max(...users.map((u) => u.id), 0) + 1;
             // const { confirmPassword, ...userWithoutConfirm } = newUser;
             // setUsers([...users, { ...userWithoutConfirm, id: userId }]);
-            const response = await fetch('http://localhost:5000/api/user/signup', {
+            const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/api/user/signup`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -120,7 +120,7 @@ const UserList = () => {
 
     const fetchDeleteImage = async (idImage) => {
         if (idImage) {
-            const response = await fetch(`http://localhost:8000/faces/${idImage}`, {
+            const response = await fetch(`${process.env.REACT_APP_AI_URL}/faces/${idImage}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -138,7 +138,7 @@ const UserList = () => {
             console.log('delete image success');
         }
         const response = await fetch(
-            `http://localhost:5000/api/user/delete?_id=${selectedUser._id}`,
+            `${process.env.REACT_APP_SERVER_URL}/api/user/delete?_id=${selectedUser._id}`,
             {
                 method: 'DELETE',
             },
