@@ -40,7 +40,7 @@ const RecognitionDisplay = () => {
     }
 
     return (
-        <Card sx={{ mt: 2, maxWidth: 345, mx: 'auto' }}>
+        <Card sx={{ maxWidth: 345, mx: 'auto', maxHeight: 315 }}>
             <CardMedia
                 component="img"
                 height="240"
